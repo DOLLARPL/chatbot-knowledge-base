@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+chatbot.db
+chatbot.db-wal
+chatbot.db-shm
+.env
+dane/wyniki/
+dane/zrzuty/
+scratch/
+testy/
+assets/
+*.md
+!dane/kb-autoexpert.md

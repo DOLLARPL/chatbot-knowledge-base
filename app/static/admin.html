@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Panel wiedzy — AutoExpert</title>
+<style>
+  :root {
+    --tlo: #F7F8F6; --karta: #FFFFFF; --tekst: #1C1D1A; --cichy: #6B6F66;
+    --obramowanie: #E2E4DE; --akcent: #B45309;
+    --zielony: #2E9E5B; --amber: #D97706; --czerwony: #D14343; --szary: #8A8A94;
+    --fiolet: #6D28D9;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--tlo); color: var(--tekst);
+    font: 14px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  a { color: var(--akcent); }
+  .gora { background: var(--karta); border-bottom: 1px solid var(--obramowanie); padding: 14px 22px;
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .gora h1 { font-size: 17px; margin: 0; font-weight: 650; }
+  .gora .kto { color: var(--cichy); font-size: 12.5px; margin-left: auto; }
+  main { max-width: 1220px; margin: 0 auto; padding: 20px 22px 60px; }
+  h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--cichy);
+    margin: 0 0 12px; font-weight: 600; }
+  section.karta, .kol { border: 1px solid var(--obramowanie); background: var(--karta);
+    border-radius: 12px; padding: 15px 17px; }
+  .chipy { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .chip { border: 1px solid var(--obramowanie); background: var(--karta); border-radius: 999px;
+    padding: 5px 12px; font-size: 12px; color: var(--cichy); }
+  .chip b { color: var(--tekst); font-weight: 600; }
+  .kupki { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+  .kol h3 { font-size: 13px; margin: 0 0 3px; font-weight: 650; display: flex; align-items: center; gap: 7px; }
+  .kol .opis { font-size: 11.5px; color: var(--cichy); margin-bottom: 10px; min-height: 48px; }
+  .kropka { width: 8px; height: 8px; border-radius: 50%; flex: none; display: inline-block; }
+  .zielony { background: var(--zielony); } .amber { background: var(--amber); }
+  .czerwony { background: var(--czerwony); } .szary { background: var(--szary); }
+  .fiolet { background: var(--fiolet); }
+  .pozycja { border-left: 2px solid var(--obramowanie); padding: 4px 0 4px 9px; margin-bottom: 8px; }
+  .pozycja .pytanie { font-size: 12.5px; }
+  .pozycja .ile { color: var(--cichy); font-size: 11px; }
+  .pozycja .powod { color: var(--cichy); font-size: 11px; display: block; }
+  .pozycja details { margin-top: 3px; }
+  .pozycja summary { font-size: 11px; color: var(--cichy); cursor: pointer; }
+  .pozycja .odp { font-size: 11.5px; color: var(--cichy); white-space: pre-wrap; padding: 4px 0; }
+  .pusto { font-size: 12px; color: var(--cichy); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--obramowanie);
+    vertical-align: top; }
+  th { font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--cichy); }
+  input[type=text], input[type=date], textarea { width: 100%; font: inherit; color: var(--tekst);
+    background: #fff; border: 1px solid var(--obramowanie); border-radius: 7px; padding: 6px 8px; }
+  textarea { min-height: 76px; resize: vertical; }
+  button { font: inherit; border-radius: 7px; padding: 6px 12px; cursor: pointer;
+    border: 1px solid var(--obramowanie); background: var(--karta); color: var(--tekst); }
+  button.glowny { background: var(--akcent); border-color: var(--akcent); color: #fff; font-weight: 550; }
+  button.ostro { color: var(--czerwony); }
+  button:disabled { opacity: .55; cursor: default; }
+  .rzad-filtrow { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 12px; }
+  .rzad-filtrow label { display: block; font-size: 11.5px; color: var(--cichy); margin-bottom: 3px; }
+  .rzad-filtrow .pole { min-width: 130px; }
+  .rzad-filtrow .szerokie { flex: 1; min-width: 200px; }
+  .wpis-kb td:first-child { width: 190px; }
+  .znacznik { display: inline-block; font-size: 11px; border-radius: 999px; padding: 1px 8px;
+    border: 1px solid var(--obramowanie); color: var(--cichy); }
+  .znacznik.z { color: var(--zielony); border-color: #BFE3CC; }
+  .znacznik.c { color: var(--czerwony); border-color: #EFC7C7; }
+  .komunikat { font-size: 12.5px; color: var(--cichy); margin-top: 8px; min-height: 18px; }
+  .komunikat.ok { color: var(--zielony); } .komunikat.blad { color: var(--czerwony); }
+  .odpowiedz-testu { border: 1px solid var(--obramowanie); border-radius: 9px; padding: 10px 12px;
+    margin-top: 10px; font-size: 13px; white-space: pre-wrap; }
+  .watek { margin-top: 14px; border-top: 1px solid var(--obramowanie); padding-top: 12px; }
+  .watek .dymek { border-left: 2px solid var(--akcent); padding: 4px 0 4px 10px; margin-bottom: 10px; }
+  .watek .dymek .pyt { font-weight: 550; }
+  .watek .dymek .meta { font-size: 11px; color: var(--cichy); }
+  .stopka { margin-top: 22px; font-size: 11.5px; color: var(--cichy); }
+  .ukryte { display: none; }
+  @media (max-width: 980px) { .kupki { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 640px) {
+    .kupki { grid-template-columns: 1fr; }
+    main { padding: 14px 13px 40px; }
+    .kol .opis { min-height: 0; }
+    table, thead, tbody, tr, td, th { display: block; }
+    thead { display: none; }
+    tr { border-bottom: 1px solid var(--obramowanie); padding: 8px 0; }
+    td { border: 0; padding: 3px 0; }
+    td:before { content: attr(data-etykieta) ": "; color: var(--cichy); font-size: 11.5px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="gora">
+  <h1>Panel wiedzy — AutoExpert</h1>
+  <span class="znacznik">dane fikcyjnej firmy demo</span>
+  <span class="kto">zalogowany jako właściciel · <a href="/admin/logout">wyloguj</a></span>
+</header>
+
+<main>
+  <div class="chipy" id="chipy"><span class="chip">wczytuję…</span></div>
+
+  <div class="kupki" id="kupki"></div>
+
+  <section class="karta" id="sekcja-wiedza">
+    <h2>Baza wiedzy — co bot wie</h2>
+    <table>
+      <tbody id="wiedza"></tbody>
+    </table>
+    <p class="komunikat" id="komunikat-wiedza"></p>
+    <button id="dodaj-wpis">Dodaj wpis</button>
+  </section>
+
+  <section class="karta" style="margin-top:16px">
+    <h2>Zadaj pytanie testowe — ta sama droga co pytanie klienta</h2>
+    <div class="rzad-filtrow">
+      <div class="pole szerokie">
+        <label for="test-pytanie">Pytanie</label>
+        <input type="text" id="test-pytanie" maxlength="500" placeholder="np. Ile kosztuje przegląd okresowy?">
+      </div>
+      <button class="glowny" id="test-wyslij">Zapytaj</button>
+    </div>
+    <div id="test-wynik"></div>
+    <p class="stopka">Pytanie testowe nie zapisuje się w dzienniku, więc nie zaśmieca listy luk ani statystyk klienta.</p>
+  </section>
+
+  <section class="karta" style="margin-top:16px">
+    <h2>Rozmowy</h2>
+    <div class="rzad-filtrow">
+      <div class="pole"><label for="od">Od (dzień u Ciebie)</label><input type="date" id="od"></div>
+      <div class="pole"><label for="do">Do</label><input type="date" id="do"></div>
+      <div class="pole szerokie"><label for="fraza">Fraza w pytaniu albo odpowiedzi</label>
+        <input type="text" id="fraza" placeholder="np. przegląd"></div>
+      <button id="filtruj">Pokaż</button>
+      <button id="czysc">Wyczyść</button>
+      <button id="eksport-rozmowy">Eksport CSV</button>
+      <button id="eksport-luki">Eksport luk CSV</button>
+    </div>
+    <p class="komunikat" id="komunikat-rozmowy"></p>
+    <table>
+      <thead>
+        <tr><th>Data</th><th>Pytanie</th><th>Odpowiedź bota</th><th>Z bazy</th>
+            <th>Czas</th><th>Wątek</th></tr>
+      </thead>
+      <tbody id="rozmowy"></tbody>
+    </table>
+    <div id="watek"></div>
+  </section>
+
+  <p class="stopka">
+    Kupki rozdziela reguła działająca na kształcie pytania i słowach kluczowych
+    (`app/luki.py`), a nie na treści odpowiedzi modelu — dlatego przy każdej pozycji widać powód.
+    Pytanie o cenę poza cennikiem to decyzja firmy, nie brak wiedzy; próba wyciągnięcia promptu
+    to sygnał o warstwie odmowy, nie zaproszenie do dopisania wpisu.
+  </p>
+</main>
+
+<script>
+"use strict";
+
+// --- drobiazgi ---------------------------------------------------------------
+
+function spłaszcz(dzieci, wynik) {
+  wynik = wynik || [];
+  for (const dziecko of [].concat(dzieci === null || dzieci === undefined ? [] : dzieci)) {
+    if (Array.isArray(dziecko)) { spłaszcz(dziecko, wynik); }
+    else if (dziecko !== null && dziecko !== undefined && dziecko !== false) { wynik.push(dziecko); }
+  }
+  return wynik;
+}
+
+function el(tag, atrybuty, dzieci) {
+  const wezel = document.createElement(tag);
+  for (const [klucz, wartosc] of Object.entries(atrybuty || {})) {
+    if (klucz === "tekst") { wezel.textContent = wartosc; }
+    else if (klucz === "klasa") { wezel.className = wartosc; }
+    else if (klucz.startsWith("on")) { wezel.addEventListener(klucz.slice(2), wartosc); }
+    else if (wartosc !== null && wartosc !== undefined) { wezel.setAttribute(klucz, wartosc); }
+  }
+  for (const dziecko of spłaszcz(dzieci)) {
+    wezel.append(typeof dziecko === "object" ? dziecko : document.createTextNode(String(dziecko)));
+  }
+  return wezel;
+}
+
+function wypelnij(rodzic, dzieci) {
+  rodzic.replaceChildren();
+  for (const dziecko of spłaszcz(dzieci)) rodzic.append(dziecko);
+}
+
+// Treść z bazy klienta i pytania klientów wstawiamy wyłącznie przez textContent —
+// nigdy innerHTML, żeby pytanie klienta nie mogło wstrzyknąć kodu do panelu.
+function czas(iso) {
+  if (!iso) return "—";
+  const data = new Date(iso);
+  return isNaN(data) ? iso : data.toLocaleString("pl-PL", { dateStyle: "short", timeStyle: "short" });
+}
+
+async function pobierz(adres) {
+  const odp = await fetch(adres, { credentials: "same-origin" });
+  if (odp.status === 401) { window.location.href = "/admin/login?blad=sesja"; throw new Error("sesja"); }
+  if (!odp.ok) {
+    let tresc = `Błąd ${odp.status}`;
+    try { tresc = (await odp.json()).detail || tresc; } catch (e) { /* nie JSON, zostaje kod */ }
+    throw new Error(tresc);
+  }
+  return odp.json();
+}
+
+async function wyslij(adres, dane) {
+  const odp = await fetch(adres, {
+    method: "POST", credentials: "same-origin",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(dane || {}),
+  });
+  if (odp.status === 401) { window.location.href = "/admin/login?blad=sesja"; throw new Error("sesja"); }
+  const wynik = await odp.json().catch(() => ({}));
+  if (!odp.ok) throw new Error(wynik.detail || `Błąd ${odp.status}`);
+  return wynik;
+}
+
+let filtr = { od: "", do: "", fraza: "" };
+function adresZFiltrem(sciezka) {
+  const pytania = new URLSearchParams();
+  if (filtr.od) pytania.set("od", filtr.od);
+  if (filtr.do) pytania.set("do", filtr.do);
+  if (filtr.fraza) pytania.set("fraza", filtr.fraza);
+  const ogon = pytania.toString();
+  return ogon ? `${sciezka}?${ogon}` : sciezka;
+}
+
+// --- luki: cztery kupki ------------------------------------------------------
+
+// Kolory kupek: czerwony = do zrobienia w bazie, amber = decyzja firmy,
+// fiolet = warstwa odmowy (nie baza), szary = śmieci do odsiania.
+const KOLORY = { dopisz: "czerwony", decyzja: "amber", filtr: "fiolet", szum: "szary" };
+
+function pozycjaLuki(p) {
+  return el("div", { klasa: "pozycja" }, [
+    el("div", { klasa: "pytanie", tekst: p.fraza }),
+    el("div", { klasa: "ile", tekst: `${p.ile}× · ostatnio ${czas(p.ostatnio)}` }),
+    el("span", { klasa: "powod", tekst: p.powod }),
+    p.odpowiedz ? el("details", {}, [
+      el("summary", { tekst: "co bot odpowiedział" }),
+      el("div", { klasa: "odp", tekst: p.odpowiedz }),
+    ]) : null,
+  ]);
+}
+
+function pokazLuki(dane) {
+  wypelnij(document.getElementById("kupki"), Object.entries(dane.kupki).map(([grupa, k]) =>
+    el("div", { klasa: "kol", "data-kupka": grupa }, [
+      el("h3", {}, [
+        el("span", { klasa: `kropka ${KOLORY[grupa] || "szary"}` }),
+        `${k.nazwa} (${k.ile_pytan})`,
+      ]),
+      el("div", { klasa: "opis", tekst: k.opis }),
+      k.pozycje.length
+        ? k.pozycje.slice(0, 12).map(pozycjaLuki)
+        : el("div", { klasa: "pusto", tekst: "brak pytań w tej kupce" }),
+      k.pozycje.length > 12
+        ? el("div", { klasa: "pusto", tekst: `…i ${k.pozycje.length - 12} dalszych fraz (eksport CSV)` })
+        : null,
+    ])
+  ));
+}
+
+// --- baza wiedzy -------------------------------------------------------------
+
+function wierszWiedzy(wpis) {
+  const sekcja = el("input", { type: "text", value: wpis.section });
+  const tresc = el("textarea", {}, [wpis.answer]);
+  const komunikat = el("p", { klasa: "komunikat" });
+
+  const zapisz = el("button", { klasa: "glowny", tekst: "Zapisz", onclick: async () => {
+    komunikat.className = "komunikat";
+    komunikat.textContent = "zapisuję…";
+    try {
+      await wyslij(`/api/admin/wiedza/${wpis.id}`, {
+        section: sekcja.value, answer: tresc.value, active: wpis.active === 1 || wpis.active === true,
+      });
+      komunikat.className = "komunikat ok";
+      komunikat.textContent = "zapisane — bot używa tej wersji od razu, bez restartu";
+      await odswiezLuki();
+    } catch (blad) { komunikat.className = "komunikat blad"; komunikat.textContent = blad.message; }
+  }});
+
+  const wlaczony = el("button", { tekst: wpis.active ? "Wyłącz" : "Włącz", onclick: async () => {
+    try {
+      await wyslij(`/api/admin/wiedza/${wpis.id}`, { active: !wpis.active });
+      await odswiezWiedze();
+      await odswiezLuki();
+    } catch (blad) { komunikat.className = "komunikat blad"; komunikat.textContent = blad.message; }
+  }});
+
+  const usun = el("button", { klasa: "ostro", tekst: "Usuń", onclick: async () => {
+    if (!window.confirm(`Usunąć wpis „${wpis.section}” na stałe? Wyłączenie wpisu zwykle wystarcza.`)) return;
+    try {
+      await wyslij(`/api/admin/wiedza/${wpis.id}/usun`, {});
+      await odswiezWiedze();
+      await odswiezLuki();
+    } catch (blad) { komunikat.className = "komunikat blad"; komunikat.textContent = blad.message; }
+  }});
+
+  return el("tr", { klasa: "wpis-kb" }, [
+    el("td", { "data-etykieta": "Sekcja" }, [sekcja,
+      el("div", {}, [el("span", { klasa: `znacznik ${wpis.active ? "z" : "c"}`,
+        tekst: wpis.active ? "włączony" : "wyłączony" })]),
+      el("div", { klasa: "pusto", tekst: `zmieniony ${czas(wpis.updated_at)}` })]),
+    el("td", { "data-etykieta": "Treść" }, [tresc]),
+    el("td", { "data-etykieta": "Akcje" }, [
+      el("div", { style: "display:flex;gap:6px;flex-wrap:wrap" }, [zapisz, wlaczony, usun]), komunikat]),
+  ]);
+}
+
+function wierszNowego() {
+  const sekcja = el("input", { type: "text", placeholder: "np. Polecenia i rabaty" });
+  const tresc = el("textarea", {}, [""]);
+  const komunikat = el("p", { klasa: "komunikat" });
+  const dodaj = el("button", { klasa: "glowny", tekst: "Dodaj", onclick: async () => {
+    komunikat.className = "komunikat";
+    komunikat.textContent = "dodaję…";
+    try {
+      await wyslij("/api/admin/wiedza", { section: sekcja.value, answer: tresc.value });
+      komunikat.className = "komunikat ok";
+      komunikat.textContent = "dodane";
+      sekcja.value = ""; tresc.value = "";
+      await odswiezWiedze();
+      await odswiezLuki();
+    } catch (blad) { komunikat.className = "komunikat blad"; komunikat.textContent = blad.message; }
+  }});
+  return el("tr", { klasa: "wpis-kb" }, [
+    el("td", { "data-etykieta": "Nowy wpis — sekcja" }, [sekcja]),
+    el("td", { "data-etykieta": "Treść" }, [tresc]),
+    el("td", { "data-etykieta": "Akcje" }, [dodaj, komunikat]),
+  ]);
+}
+
+async function odswiezWiedze() {
+  const dane = await pobierz("/api/admin/wiedza");
+  wypelnij(document.getElementById("wiedza"), dane.wpisy.map(wierszWiedzy));
+  document.getElementById("komunikat-wiedza").textContent =
+    `${dane.aktywne} wpisów włączonych, ${dane.wpisy.length} razem. Wyłączony wpis zostaje w bazie, `
+    + "ale bot go nie widzi.";
+}
+
+// --- nagłówek ----------------------------------------------------------------
+
+function pokazStan(st) {
+  wypelnij(document.getElementById("chipy"), [
+    el("span", { klasa: "chip" }, [el("b", { tekst: st.wpisy }), " wpisów w bazie"]),
+    el("span", { klasa: "chip" }, [el("b", { tekst: st.pytania }), " pytań w dzienniku"]),
+    el("span", { klasa: "chip" }, [el("b", { tekst: st.luki }), ` bez odpowiedzi (${st.luki_pct}%)`]),
+    el("span", { klasa: "chip" }, ["odpowiedź średnio ", el("b", { tekst: `${st.sredni_czas_ms} ms` })]),
+    el("span", { klasa: "chip" }, ["koszt całości ", el("b", { tekst: `${st.koszt_pln} zł` })]),
+    st.awarie_modelu
+      ? el("span", { klasa: "chip" }, [el("b", { tekst: st.awarie_modelu }), " awarii modelu (nie liczymy jako luk)"])
+      : null,
+  ]);
+}
+
+async function odswiezLuki() {
+  const dane = await pobierz(adresZFiltrem("/api/admin/luki"));
+  pokazLuki(dane);
+  return dane;
+}
+
+// --- rozmowy -----------------------------------------------------------------
+
+function wierszRozmowy(w) {
+  return el("tr", {}, [
+    el("td", { "data-etykieta": "Data", tekst: czas(w.created_at) }),
+    el("td", { "data-etykieta": "Pytanie", tekst: w.question }),
+    el("td", { "data-etykieta": "Odpowiedź", tekst: w.answer }),
+    el("td", { "data-etykieta": "Z bazy" }, [
+      el("span", { klasa: `znacznik ${w.answered ? "z" : "c"}`, tekst: w.answered ? "tak" : "nie" })]),
+    el("td", { "data-etykieta": "Czas", tekst: `${w.latency_ms} ms` }),
+    el("td", { "data-etykieta": "Wątek" }, [
+      el("button", { tekst: "pokaż", onclick: () => pokazWatek(w.session_id) })]),
+  ]);
+}
+
+async function pokazWatek(sesja) {
+  const miejsce = document.getElementById("watek");
+  wypelnij(miejsce, [el("div", { klasa: "pusto", tekst: "wczytuję wątek…" })]);
+  try {
+    const dane = await pobierz(`/api/admin/rozmowy/watek?sesja=${encodeURIComponent(sesja)}`);
+    wypelnij(miejsce, [
+      el("div", { klasa: "watek" }, [
+        el("h2", { tekst: `Wątek sesji ${dane.sesja}` }),
+        ...dane.wiadomosci.map(m => el("div", { klasa: "dymek" }, [
+          el("div", { klasa: "pyt", tekst: `Klient: ${m.question}` }),
+          el("div", { tekst: `Bot: ${m.answer}` }),
+          el("div", { klasa: "meta", tekst: `${czas(m.created_at)} · ${m.latency_ms} ms · `
+            + (m.answered ? "z bazy wiedzy" : "bez odpowiedzi w bazie") }),
+        ])),
+      ]),
+    ]);
+  } catch (blad) {
+    wypelnij(miejsce, [el("div", { klasa: "komunikat blad", tekst: blad.message })]);
+  }
+}
+
+async function odswiezRozmowy() {
+  const dane = await pobierz(adresZFiltrem("/api/admin/rozmowy"));
+  pokazStan(dane.statystyki);
+  wypelnij(document.getElementById("rozmowy"), dane.rozmowy.map(wierszRozmowy));
+  document.getElementById("komunikat-rozmowy").textContent =
+    dane.liczba ? `${dane.liczba} wierszy (najnowsze u góry).` : "Brak rozmów dla tego filtra.";
+  if (!dane.rozmowy.length) wypelnij(document.getElementById("watek"), []);
+}
+
+function pokazKomunikat(id, tresc, klasa) {
+  const wezel = document.getElementById(id);
+  wezel.className = `komunikat ${klasa || ""}`;
+  wezel.textContent = tresc;
+}
+
+// --- podłączenie przycisków ---------------------------------------------------
+
+document.getElementById("dodaj-wpis").addEventListener("click", () => {
+  const tabela = document.getElementById("wiedza");
+  if (tabela.querySelector("tr.nowy")) { tabela.querySelector("tr.nowy textarea").focus(); return; }
+  const wiersz = wierszNowego();
+  wiersz.classList.add("nowy");
+  tabela.append(wiersz);
+  wiersz.querySelector("input").focus();
+});
+
+document.getElementById("filtruj").addEventListener("click", async () => {
+  filtr = {
+    od: document.getElementById("od").value,
+    do: document.getElementById("do").value,
+    fraza: document.getElementById("fraza").value.trim(),
+  };
+  try { await odswiezRozmowy(); await odswiezLuki(); }
+  catch (blad) { pokazKomunikat("komunikat-rozmowy", blad.message, "blad"); }
+});
+
+document.getElementById("czysc").addEventListener("click", async () => {
+  document.getElementById("od").value = "";
+  document.getElementById("do").value = "";
+  document.getElementById("fraza").value = "";
+  filtr = { od: "", do: "", fraza: "" };
+  await odswiezRozmowy();
+  await odswiezLuki();
+});
+
+function eksport(adres) { window.location.href = adresZFiltrem(adres); }
+document.getElementById("eksport-rozmowy").addEventListener("click",
+  () => eksport("/api/admin/eksport/rozmowy.csv"));
+document.getElementById("eksport-luki").addEventListener("click",
+  () => eksport("/api/admin/eksport/luki.csv"));
+
+async function pytanieTestowe() {
+  const pole = document.getElementById("test-pytanie");
+  const przycisk = document.getElementById("test-wyslij");
+  const wynik = document.getElementById("test-wynik");
+  const pytanie = pole.value.trim();
+  if (!pytanie) { wypelnij(wynik, []); return; }
+
+  przycisk.disabled = true;
+  wypelnij(wynik, [el("div", { klasa: "pusto", tekst: "pytam model…" })]);
+  try {
+    const dane = await wyslij("/api/admin/test", { question: pytanie });
+    wypelnij(wynik, [
+      el("div", { klasa: "odpowiedz-testu" }, [
+        el("div", {}, [
+          el("span", { klasa: `znacznik ${dane.answered ? "z" : "c"}`,
+            tekst: dane.answered ? "odpowiedź z bazy wiedzy" : "bot nie ma tej wiedzy" }),
+          dane.answered ? null : el("span", { tekst: ` · kupka: ${dane.kupka} (${dane.powod})` }),
+        ]),
+        el("div", { style: "margin-top:6px", tekst: dane.answer }),
+        el("div", { klasa: "meta pusto",
+          tekst: `${dane.latency_ms} ms · ${dane.model}` }),
+      ]),
+    ]);
+  } catch (blad) {
+    wypelnij(wynik, [el("div", { klasa: "komunikat blad", tekst: blad.message })]);
+  } finally {
+    przycisk.disabled = false;
+  }
+}
+
+document.getElementById("test-wyslij").addEventListener("click", pytanieTestowe);
+document.getElementById("test-pytanie").addEventListener("keydown", (zdarzenie) => {
+  if (zdarzenie.key === "Enter") pytanieTestowe();
+});
+
+// --- start --------------------------------------------------------------------
+
+(async function start() {
+  try {
+    await odswiezRozmowy();
+    await odswiezWiedze();
+    await odswiezLuki();
+  } catch (blad) {
+    pokazKomunikat("komunikat-rozmowy", `Nie udało się wczytać danych: ${blad.message}`, "blad");
+    wypelnij(document.getElementById("chipy"), []);
+    wypelnij(document.getElementById("kupki"),
+      [el("div", { klasa: "kol", tekst: `Nie udało się wczytać listy luk: ${blad.message}` })]);
+  }
+})();
+</script>
+</body>
+</html>

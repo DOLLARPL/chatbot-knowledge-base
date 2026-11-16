@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Panel wiedzy — logowanie</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: #F7F8F6; color: #1C1D1A; font: 14px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding: 20px; }
+  .karta { background: #fff; border: 1px solid #E2E4DE; border-radius: 14px; padding: 26px 26px 22px;
+    width: 100%; max-width: 380px; }
+  h1 { font-size: 17px; margin: 0 0 4px; font-weight: 650; }
+  .pod { color: #6B6F66; font-size: 12.5px; margin-bottom: 18px; }
+  label { display: block; font-size: 12px; color: #6B6F66; margin-bottom: 5px; }
+  input[type=password] { width: 100%; font: inherit; padding: 9px 11px; border: 1px solid #E2E4DE;
+    border-radius: 8px; color: #1C1D1A; background: #fff; }
+  button { width: 100%; margin-top: 14px; font: inherit; font-weight: 550; padding: 10px 14px;
+    border-radius: 8px; border: 1px solid #B45309; background: #B45309; color: #fff; cursor: pointer; }
+  .blad { margin-top: 12px; font-size: 12.5px; color: #D14343; }
+  .stopka { margin-top: 20px; font-size: 11.5px; color: #6B6F66; }
+  a { color: #B45309; }
+</style>
+</head>
+<body>
+<form class="karta" method="post" action="/admin/login">
+  <h1>Panel wiedzy</h1>
+  <div class="pod">Fikcyjny warsztat AutoExpert — ekran właściciela.</div>
+  <label for="haslo">Hasło</label>
+  <input type="password" id="haslo" name="haslo" autocomplete="current-password" autofocus required>
+  <input type="hidden" name="przekierowanie" value="/admin">
+  <button type="submit">Wejdź</button>
+  <p class="blad" id="komunikat"></p>
+  <p class="stopka">Hasło jest w pliku <code>.env</code> na serwerze (<code>ADMIN_PASSWORD</code>) i nigdy
+    nie jedzie do przeglądarki. Po pięciu nieudanych próbach logowanie z tego adresu IP jest
+    zablokowane na 10 minut.</p>
+</form>
+<script>
+  const powod = new URLSearchParams(window.location.search).get("blad");
+  if (powod === "haslo") {
+    document.getElementById("komunikat").textContent = "Nieprawidłowe hasło.";
+    document.getElementById("haslo").value = "";
+  } else if (powod === "blokada") {
+    document.getElementById("komunikat").textContent =
+      "Za dużo nieudanych prób. Spróbuj ponownie za 10 minut.";
+  } else if (powod === "sesja") {
+    document.getElementById("komunikat").textContent = "Sesja wygasła. Zaloguj się ponownie.";
+  }
+</script>
+</body>
+</html>

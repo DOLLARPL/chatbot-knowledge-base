@@ -1,0 +1,9 @@
+# Pliki, które nie idą do repozytorium
+.venv/
+__pycache__/
+*.pyc
+.env
+chatbot.db
+chatbot.db-wal
+chatbot.db-shm
+dane/wyniki/

@@ -1,0 +1,31 @@
+# Demo chatbota z bazą wiedzy — osobny stos na współdzielonym VPS Hetzner.
+#
+# Zasady współdzielenia serwera:
+# - nie dotyka innych kontenerów na tym samym hoście,
+# - słucha wyłącznie na 127.0.0.1:8090 (publicznie wystawia go nginx + certyfikat),
+# - własny wolumen na bazę rozmów, żeby przebudowa obrazu nie kasowała dziennika.
+
+services:
+  chatbot-demo:
+    build: .
+    image: chatbot-demo:1
+    container_name: chatbot-demo
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8090:8090"
+    env_file:
+      - .env
+    environment:
+      # Nadpisuje .env: na produkcji bot odpowiada tylko stronom, które mają prawo go używać.
+      ALLOWED_ORIGINS: "https://chat.jnxautomation.pl,https://jnxautomation.pl,https://www.jnxautomation.pl"
+      DB_PATH: "/data/chatbot.db"
+    volumes:
+      - chatbot-demo-data:/data
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  chatbot-demo-data:

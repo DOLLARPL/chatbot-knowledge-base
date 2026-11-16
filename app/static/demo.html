@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AutoExpert — warsztat samochodowy w Warszawie</title>
+<meta name="description" content="AutoExpert, warsztat samochodowy przy ul. Wolskiej 12 w Warszawie. Przeglądy okresowe, diagnostyka, klimatyzacja, hamulce, geometria. Ceny od 100 zł.">
+<style>
+  /* Strona pokazowa warsztatu z wklejonym widgetem czatu (etap 4).
+     Jasny, spokojny design: brak animacji, brak agresywnych kolorów, jedno miejsce warte uwagi — widget w rogu.
+     Wszystkie wartości są zgodne z bazą wiedzy z dane/kb-autoexpert.md. */
+  :root {
+    --tlo: #F7F8F6;
+    --karta: #FFFFFF;
+    --tekst: #1B1D21;
+    --przygaszony: #5C626B;
+    --linia: #E3E5E1;
+    --akcent: #B45309;
+    --akcent-jasny: #FBF3E9;
+    --kod: #F2F3F0;
+    --promien: 12px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--tlo);
+    color: var(--tekst);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  .okladka { max-width: 1040px; margin: 0 auto; padding: 0 22px; }
+  a { color: var(--akcent); }
+  h1, h2, h3 { letter-spacing: -0.015em; line-height: 1.25; margin: 0; font-weight: 600; }
+  h1 { font-size: clamp(1.9rem, 4.2vw, 2.7rem); }
+  h2 { font-size: clamp(1.35rem, 2.6vw, 1.7rem); margin-bottom: 6px; }
+  h3 { font-size: 1.05rem; }
+  p { margin: 0 0 14px; }
+  .etykieta {
+    display: block; font-size: 0.76rem; font-weight: 600; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--przygaszony); margin-bottom: 10px;
+  }
+  section { padding: 54px 0; border-top: 1px solid var(--linia); }
+  .wstep { padding: 40px 0 48px; }
+
+  /* --- pasek górny --- */
+  .pasek {
+    border-bottom: 1px solid var(--linia); background: var(--karta);
+  }
+  .pasek .okladka {
+    display: flex; flex-wrap: wrap; gap: 8px 26px; align-items: baseline;
+    padding-top: 15px; padding-bottom: 15px; font-size: 0.92rem; color: var(--przygaszony);
+  }
+  .znak { font-weight: 700; color: var(--tekst); letter-spacing: -0.01em; font-size: 1.02rem; }
+  .znak span { color: var(--akcent); }
+  .pasek a { color: var(--tekst); text-decoration: none; }
+  .pasek a:hover { text-decoration: underline; }
+
+  /* --- wstęp --- */
+  .wstep h1 { max-width: 20ch; margin-bottom: 14px; }
+  .wstep .zdanie { font-size: 1.09rem; color: var(--przygaszony); max-width: 62ch; }
+  .fakty { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+  .fakt {
+    background: var(--karta); border: 1px solid var(--linia); border-radius: 999px;
+    padding: 6px 14px; font-size: 0.9rem; color: var(--przygaszony);
+  }
+  .fakt b { color: var(--tekst); font-weight: 600; }
+  .przycisk {
+    display: inline-block; margin-top: 26px; background: var(--akcent); color: #FFF;
+    text-decoration: none; font-weight: 600; font-size: 0.97rem;
+    padding: 12px 22px; border-radius: 8px; border: 1px solid transparent;
+  }
+  .przycisk:hover { background: #93400A; }
+  .przycisk.boczny { background: transparent; color: var(--akcent); border-color: var(--akcent); margin-left: 10px; }
+  .przycisk.boczny:hover { background: var(--akcent-jasny); }
+
+  /* --- siatki --- */
+  .siatka { display: grid; gap: 16px; margin-top: 24px; }
+  .kolumny-3 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .kolumny-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .karta {
+    background: var(--karta); border: 1px solid var(--linia); border-radius: var(--promien);
+    padding: 20px 22px;
+  }
+  .karta p:last-child { margin-bottom: 0; }
+  .karta h3 { margin-bottom: 8px; }
+  .karta p { font-size: 0.95rem; color: var(--przygaszony); }
+
+  /* --- cennik --- */
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; background: var(--karta);
+          border: 1px solid var(--linia); border-radius: var(--promien); overflow: hidden; }
+  th, td { text-align: left; padding: 13px 18px; border-bottom: 1px solid var(--linia); font-size: 0.97rem; }
+  th { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--przygaszony); font-weight: 600; }
+  td:last-child, th:last-child { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  tr:last-child td { border-bottom: 0; }
+  td.cena { font-weight: 600; }
+  .podstawa { font-size: 0.9rem; color: var(--przygaszony); margin-top: 14px; }
+
+  /* --- lista pytań do widgetu --- */
+  .pytania { list-style: none; padding: 0; margin: 18px 0 0; }
+  .pytania li {
+    background: var(--karta); border: 1px solid var(--linia); border-left: 3px solid var(--akcent);
+    border-radius: 8px; padding: 10px 16px; margin-bottom: 8px; font-size: 0.97rem;
+  }
+
+  /* --- blok wklejki --- */
+  .wklejka { background: var(--karta); border: 1px solid var(--linia); border-radius: var(--promien); padding: 24px; }
+  .kod {
+    background: var(--kod); border: 1px solid var(--linia); border-radius: 8px;
+    padding: 14px 16px; margin: 0 0 14px; overflow-x: auto;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.86rem; line-height: 1.6; white-space: pre; color: #23262B;
+  }
+  .przycisk-kopiuj {
+    font: inherit; font-size: 0.92rem; font-weight: 600; cursor: pointer;
+    background: var(--akcent); color: #FFF; border: 0; border-radius: 8px; padding: 10px 18px;
+  }
+  .przycisk-kopiuj:hover { background: #93400A; }
+  .stan-kopiowania { margin-left: 12px; font-size: 0.9rem; color: var(--przygaszony); }
+  .kroki { margin: 22px 0 0; padding-left: 22px; color: var(--przygaszony); font-size: 0.95rem; }
+  .kroki li { margin-bottom: 6px; }
+  .atrybuty { margin-top: 22px; }
+  code.wstawka { background: var(--kod); border: 1px solid var(--linia); border-radius: 4px;
+                 padding: 1px 6px; font-size: 0.87rem; }
+
+  /* --- RODO --- */
+  .rodo { background: var(--akcent-jasny); border: 1px solid #EBD9C4; border-radius: var(--promien); padding: 24px; }
+  .rodo ul { margin: 12px 0 0; padding-left: 22px; }
+  .rodo li { margin-bottom: 8px; font-size: 0.95rem; }
+  .notka { font-size: 0.88rem; color: var(--przygaszony); margin-top: 18px; }
+
+  /* --- stopka --- */
+  footer { border-top: 1px solid var(--linia); background: var(--karta); }
+  footer .okladka { padding-top: 30px; padding-bottom: 34px; font-size: 0.9rem; color: var(--przygaszony); }
+  footer b { color: var(--tekst); font-weight: 600; }
+
+  @media (max-width: 620px) {
+    section { padding: 42px 0; }
+    th, td { padding: 11px 14px; }
+    .przycisk { display: block; text-align: center; }
+    .przycisk.boczny { margin: 10px 0 0; }
+  }
+
+  /* Tabela ustawień na wąskim ekranie zamienia się w listę. Dwie kolumny nie zwężą się poniżej
+     ~630 px (długie nazwy atrybutów), a wtedy telefon nie mieści strony i przeglądarka pomniejsza
+     cały tekst do 55% — strona na telefonie robi się nieczytelna. */
+  @media (max-width: 620px) {
+    .atrybuty { background: transparent; border: 0; }
+    .atrybuty, .atrybuty tbody, .atrybuty tr, .atrybuty td { display: block; width: 100%; }
+    .atrybuty thead { display: none; }
+    .atrybuty tr { background: var(--kod); border: 1px solid var(--linia); border-radius: 8px;
+                   padding: 11px 14px; margin-bottom: 8px; }
+    .atrybuty td { border: 0; padding: 0; white-space: normal; text-align: left; font-size: 0.92rem; }
+    .atrybuty td:first-child { font-weight: 600; margin-bottom: 4px; }
+    .atrybuty td:last-child { color: var(--przygaszony); }
+  }
+</style>
+</head>
+<body>
+
+<header class="pasek">
+  <div class="okladka">
+    <span class="znak">Auto<span>Expert</span></span>
+    <span>ul. Wolska 12, Warszawa</span>
+    <span>tel. <a href="tel:512300400">512 300 400</a></span>
+    <span>pn–pt 8:00–17:00, sob. 9:00–13:00</span>
+  </div>
+</header>
+
+<main>
+  <div class="okladka">
+
+    <div class="wstep">
+      <span class="etykieta">Warsztat samochodowy · Warszawa Wola</span>
+      <h1>Naprawiamy auta bez niespodzianek w rachunku</h1>
+      <p class="zdanie">
+        Działamy od 2012 roku. Obsługujemy samochody osobowe wszystkich marek, także hybrydowe i elektryczne.
+        Sześć stanowisk naprawczych i własna diagnostyka komputerowa. Nie zajmujemy się blacharstwem ani lakierowaniem,
+        więc wszystko, co robimy, robimy na miejscu.
+      </p>
+      <div class="fakty">
+        <span class="fakt"><b>Od 2012</b> roku</span>
+        <span class="fakt"><b>6</b> stanowisk naprawczych</span>
+        <span class="fakt"><b>5 min</b> od metra Płocka</span>
+        <span class="fakt"><b>8</b> miejsc parkingowych dla klientów</span>
+      </div>
+      <a class="przycisk" href="#cennik">Zobacz cennik</a>
+      <a class="przycisk boczny" href="#wklejka">Jak działa ten czat</a>
+    </div>
+
+    <section id="uslugi">
+      <span class="etykieta">Zakres prac</span>
+      <h2>Co robimy</h2>
+      <p class="podstawa">Na diagnostykę i przegląd nie trzeba się umawiać. Na pozostałe usługi tak.</p>
+      <div class="siatka kolumny-3">
+        <div class="karta">
+          <h3>Przeglądy i olej</h3>
+          <p>Przegląd okresowy, wymiana oleju i filtrów. Auto przyjęte do godziny 12:00 odbierzesz tego samego dnia.</p>
+        </div>
+        <div class="karta">
+          <h3>Diagnostyka</h3>
+          <p>Własny sprzęt diagnostyczny, odczyt błędów i sprawdzenie elektroniki. Bez umawiania.</p>
+        </div>
+        <div class="karta">
+          <h3>Klimatyzacja</h3>
+          <p>Serwis układu i odgrzybianie. Sprawdzamy szczelność, nie tylko dobijamy czynnik.</p>
+        </div>
+        <div class="karta">
+          <h3>Hamulce</h3>
+          <p>Klocki, tarcze, płyn hamulcowy. Po wymianie przejeżdżamy się z klientem i sprawdzamy skuteczność.</p>
+        </div>
+        <div class="karta">
+          <h3>Zawieszenie i geometria</h3>
+          <p>Wahacze, łączniki, amortyzatory oraz ustawienie geometrii kół po naprawie.</p>
+        </div>
+        <div class="karta">
+          <h3>Naprawy większe</h3>
+          <p>Rozrząd, sprzęgło, skrzynie biegów, silnik. Te prace wyceniamy po oględzinach pojazdu.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="cennik">
+      <span class="etykieta">Cennik</span>
+      <h2>Ceny podstawowych usług</h2>
+      <p class="podstawa">Ceny części podajemy przy konkretnym zamówieniu, po ustaleniu dostępności u dostawcy.</p>
+      <table>
+        <thead>
+          <tr><th>Usługa</th><th>Cena</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Przegląd okresowy</td><td class="cena">od 250 zł</td></tr>
+          <tr><td>Wymiana oleju z filtrem</td><td class="cena">od 180 zł</td></tr>
+          <tr><td>Diagnostyka komputerowa</td><td class="cena">120 zł</td></tr>
+          <tr><td>Serwis klimatyzacji</td><td class="cena">od 150 zł</td></tr>
+          <tr><td>Odgrzybianie klimatyzacji</td><td class="cena">od 120 zł</td></tr>
+          <tr><td>Klocki hamulcowe (oś)</td><td class="cena">od 300 zł</td></tr>
+          <tr><td>Klocki z tarczami (oś)</td><td class="cena">od 550 zł</td></tr>
+          <tr><td>Geometria kół</td><td class="cena">od 120 zł</td></tr>
+          <tr><td>Przygotowanie do przeglądu rejestracyjnego</td><td class="cena">od 100 zł</td></tr>
+          <tr><td>Wymiana wahacza</td><td class="cena">od 250 zł</td></tr>
+        </tbody>
+      </table>
+      <p class="podstawa">
+        Ceny wymiany rozrządu, sprzęgła, napraw skrzyni biegów i napraw silnika podajemy wyłącznie po oględzinach
+        pojazdu. Oględziny trwają około 30 minut i kosztują 100 zł — tę kwotę odliczamy od późniejszej naprawy.
+        Do wstępnej rozmowy wystarczą nam marka, model, rocznik i przebieg.
+      </p>
+    </section>
+
+    <section id="praktyczne">
+      <span class="etykieta">Organizacja</span>
+      <h2>Jak to wygląda w praktyce</h2>
+      <div class="siatka kolumny-2">
+        <div class="karta">
+          <h3>Terminy</h3>
+          <p>Przegląd i wymiana oleju tego samego dnia, jeśli auto trafi do nas do 12:00. Drobne naprawy 1–2 dni robocze,
+             naprawy z zamawianiem części 3–7 dni roboczych. O zakresie prac i cenie dzwonimy przed rozpoczęciem naprawy.</p>
+        </div>
+        <div class="karta">
+          <h3>Płatności</h3>
+          <p>Gotówka, karta, BLIK. Na życzenie wystawiamy fakturę na firmę. Przy zamawianiu części pobieramy zaliczkę
+             30% wartości części. Nie prowadzimy sprzedaży ratalnej ani leasingu.</p>
+        </div>
+        <div class="karta">
+          <h3>Dojazd i auto zastępcze</h3>
+          <p>Jesteśmy 5 minut pieszo od stacji metra Płocka. Na czas naprawy dłuższej niż dwa dni podstawiamy auto
+             zastępcze za 80 zł za dobę — rezerwacja telefoniczna. Lawety nie prowadzimy.</p>
+        </div>
+        <div class="karta">
+          <h3>Gwarancja i reklamacje</h3>
+          <p>12 miesięcy na wykonaną usługę i na części zamówione przez warsztat. Reklamację zgłasza się e-mailem
+             na biuro@autoexpert-demo.pl w ciągu 14 dni od wykonania usługi. Auto na naprawę gwarancyjną przyjmujemy
+             poza kolejnością.</p>
+        </div>
+        <div class="karta">
+          <h3>Polecenia</h3>
+          <p>Za klienta, który przyszedł z polecenia i wykonał u nas usługę, przyznajemy 50 zł rabatu na kolejną wizytę.
+             Rabat przysługuje jednemu polecającemu i nie łączy się z innymi promocjami.</p>
+        </div>
+        <div class="karta">
+          <h3>Kontakt</h3>
+          <p>Telefon 512 300 400 — odbieramy w godzinach pracy warsztatu. E-mail biuro@autoexpert-demo.pl, tu również
+             przyjmujemy zgłoszenia reklamacyjne. Godziny: pn–pt 8:00–17:00, sobota 9:00–13:00, niedziela zamknięte.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="czat">
+      <span class="etykieta">Czat na stronie</span>
+      <h2>O co najczęściej pytają klienci</h2>
+      <p class="podstawa">Kliknij dymek w prawym dolnym rogu i zapytaj o dowolną z tych rzeczy. Bot odpowiada
+         wyłącznie z naszej bazy wiedzy — jeśli czegoś w niej nie ma, powie o tym wprost i poda telefon.</p>
+      <ul class="pytania">
+        <li>Ile kosztuje przegląd okresowy?</li>
+        <li>Czy wymieniacie rozrząd w Passacie 2015 i ile to kosztuje?</li>
+        <li>Jesteście otwarci w sobotę?</li>
+        <li>Czy dostanę auto zastępcze na czas naprawy?</li>
+        <li>Mam auto z gwarancji, czy wystawiacie fakturę na firmę?</li>
+      </ul>
+    </section>
+
+    <section id="wklejka">
+      <span class="etykieta">Dla właściciela strony</span>
+      <h2>Wklej tę linijkę u siebie</h2>
+      <p class="podstawa">Widget działa na każdej stronie, także zbudowanej w WordPressie, Wixie czy na gotowym szablonie.
+         Wystarczy jedna linijka kodu przed zamknięciem <code class="wstawka">&lt;/body&gt;</code>. Nie trzeba nic instalować
+         na serwerze, nie trzeba zmieniać wyglądu strony.</p>
+      <div class="wklejka">
+        <pre class="kod" id="snippet">&lt;script src="https://chat.jnxautomation.pl/widget.js" data-tenant="demo" data-title="AutoExpert" data-color="#B45309" data-welcome="Cześć, w czym mogę pomóc?" defer&gt;&lt;/script&gt;</pre>
+        <button class="przycisk-kopiuj" id="kopiuj" type="button">Kopiuj linijkę</button>
+        <span class="stan-kopiowania" id="stan" role="status" aria-live="polite"></span>
+        <ol class="kroki">
+          <li>Skopiuj linijkę powyżej.</li>
+          <li>Wklej ją na swojej stronie tuż przed zamknięciem <code class="wstawka">&lt;/body&gt;</code>.</li>
+          <li>Odśwież stronę — dymek czatu pojawi się w prawym dolnym rogu.</li>
+        </ol>
+        <table class="atrybuty">
+          <thead>
+            <tr><th>Ustawienie</th><th>Do czego służy</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code class="wstawka">data-tenant</code></td><td>Nazwa Twojej bazy wiedzy, nadawana przy wdrożeniu.</td></tr>
+            <tr><td><code class="wstawka">data-title</code></td><td>Nazwa firmy na nagłówku okna czatu.</td></tr>
+            <tr><td><code class="wstawka">data-color</code></td><td>Kolor marki. Kolor tekstu dobiera się automatycznie, żeby był czytelny.</td></tr>
+            <tr><td><code class="wstawka">data-welcome</code></td><td>Pierwsze zdanie, które widzi klient po otwarciu czatu.</td></tr>
+          </tbody>
+        </table>
+        <p class="notka">Widget działa w Shadow DOM, więc style Twojej strony — nawet te z <code class="wstawka">!important</code> —
+           nie zmieniają jego wyglądu i odwrotnie: widget nie psuje niczego na stronie.</p>
+      </div>
+    </section>
+
+    <section id="rodo">
+      <span class="etykieta">Dane osobowe</span>
+      <h2>Co się dzieje z rozmową w czacie</h2>
+      <div class="rodo">
+        <p>Rozmowa w czacie to dane, więc mówimy wprost, co z nimi robimy. Administratorem danych jest właściciel
+           strony, czyli warsztat. Obsługę techniczną czatu prowadzi jnxautomation.pl jako podmiot przetwarzający.</p>
+        <ul>
+          <li><b>Co zapisujemy:</b> treść pytania, odpowiedź bota, czas odpowiedzi, koszt wygenerowania odpowiedzi,
+              adres IP i adres strony, z której zadano pytanie. Bez tych danych nie da się poprawiać bazy wiedzy
+              ani pilnować kosztów.</li>
+          <li><b>Dokąd trafia pytanie:</b> do modelu językowego obsługiwanego przez dostawcę zewnętrznego, wyłącznie
+              w celu wygenerowania odpowiedzi. Pytania nie są wykorzystywane do celów marketingowych.</li>
+          <li><b>Twoja przeglądarka:</b> zapisujemy jeden identyfikator rozmowy w pamięci lokalnej strony
+              (<code class="wstawka">localStorage</code>), żeby wątek nie zniknął po odświeżeniu. Nie używamy
+              plików cookies do reklam ani nie profilujemy odwiedzających.</li>
+          <li><b>W tym demo:</b> to strona pokazowa, więc zapisane rozmowy mogą być przeglądane przez administratora
+              demo w celach testowych.</li>
+          <li><b>Twoje prawa:</b> dostęp do danych, poprawienie ich i usunięcie. Wystarczy kontakt: e-mail
+              <a href="mailto:kontakt@jnxautomation.pl">kontakt@jnxautomation.pl</a> lub tel. +48 600 000 000.</li>
+          <li><b>Czego nie robimy:</b> nie prosimy w czacie o numer PESEL, numer dokumentu ani dane karty.
+              Jeśli czat o to zapyta, to błąd — napisz nam o tym.</li>
+        </ul>
+        <p class="notka">Przy wdrożeniu u klienta te punkty dopasowujemy do jego polityki prywatności i okresu
+           przechowywania danych. Widget sam z siebie nie zbiera nic ponad to, co wymieniono powyżej.</p>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  <div class="okladka">
+    <p><b>AutoExpert to firma fikcyjna.</b> Ta strona jest częścią demo portfolio: pokazuje widget czatu z bazą wiedzy
+       wklejony jedną linijką kodu. Ceny, terminy i zasady pochodzą z wymyślonej bazy wiedzy warsztatu.</p>
+    <p>Realizacja: <a href="https://jnxautomation.pl">jnxautomation.pl</a> — chatboty z bazą wiedzy, automatyzacje,
+       integracje API. Kontakt: kontakt@jnxautomation.pl, tel. +48 600 000 000.</p>
+  </div>
+</footer>
+
+<!-- Dokładnie ta linijka, którą dostaje klient. Lokalnie adres względny, produkcyjnie
+     https://chat.jnxautomation.pl/widget.js — pokazana wersja w bloku powyżej jest produkcyjna. -->
+<script src="/widget.js"
+        data-tenant="demo"
+        data-title="AutoExpert"
+        data-color="#B45309"
+        data-welcome="Cześć, w czym mogę pomóc?"
+        defer></script>
+
+<script>
+  // Kopiowanie wklejki. Zwykły skrypt strony — widget ma własny, odizolowany.
+  (function () {
+    var zrodlo = document.getElementById("snippet");
+    var przycisk = document.getElementById("kopiuj");
+    var stan = document.getElementById("stan");
+    if (!zrodlo || !przycisk || !stan) return;
+
+    function potwierdz(tekst) {
+      stan.textContent = tekst;
+      setTimeout(function () { stan.textContent = ""; }, 4000);
+    }
+
+    function kopiaZapasowa() {
+      var zakres = document.createRange();
+      zakres.selectNodeContents(zrodlo);
+      var zaznaczenie = window.getSelection();
+      zaznaczenie.removeAllRanges();
+      zaznaczenie.addRange(zakres);
+      var udaloSie = false;
+      try { udaloSie = document.execCommand("copy"); } catch (blad) { udaloSie = false; }
+      zaznaczenie.removeAllRanges();
+      potwierdz(udaloSie ? "Skopiowane." : "Zaznaczyłem linijkę — skopiuj ją skrótem Ctrl+C.");
+    }
+
+    przycisk.addEventListener("click", function () {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(zrodlo.textContent).then(function () {
+          potwierdz("Skopiowane.");
+        }, kopiaZapasowa);
+      } else {
+        kopiaZapasowa();
+      }
+    });
+  })();
+</script>
+</body>
+</html>

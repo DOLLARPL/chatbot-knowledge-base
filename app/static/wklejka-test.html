@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wklejka widget.js — strona testowa</title>
+<!--
+  Strona udająca stronę klienta. Celowo agresywny CSS: sprawdzamy, czy Shadow DOM
+  izoluje widget (widget ma wyglądać tak samo mimo czerwonego Comic Sans wokół).
+  Na dole jest dokładnie ta wklejka, którą dostanie klient (lokalnie adres względny).
+-->
+<style>
+  * { box-sizing: border-box; font-family: "Comic Sans MS", cursive !important; }
+  body { margin: 0; padding: 24px; background: #FFFFFF; color: #111111; line-height: 2.2; }
+  h1 { font-size: 32px; text-transform: uppercase; }
+  button { background: #C81E1E !important; color: #FFFFFF !important; border: 4px dashed #1E40AF !important;
+           font-size: 22px !important; text-transform: uppercase; border-radius: 0 !important; padding: 18px !important; }
+  input, section, div, pre { color: #0B7A0B !important; font-size: 19px !important; }
+  pre { background: #F1F1F1; padding: 12px; overflow-x: auto; line-height: 1.5; }
+  p { max-width: 900px; }
+</style>
+</head>
+<body>
+  <h1>Fikcyjna strona klienta: AutoExpert</h1>
+  <p>To jest zwykła strona warsztatu, do której dopisano jedną linijkę kodu.
+     Wszystkie style powyżej są wrogie dla widgetu — jeśli widget wygląda normalnie,
+     Shadow DOM działa.</p>
+
+  <p>Wersja produkcyjna wklejki:</p>
+<pre>&lt;script src="https://chat.jnxautomation.pl/widget.js" data-tenant="demo" data-title="AutoExpert" data-color="#FF6B00" data-welcome="Cześć, w czym mogę pomóc?" defer&gt;&lt;/script&gt;</pre>
+
+  <p>Wersja lokalna (ta sama wklejka, tylko adres względny, bo testujemy bez domeny):</p>
+<pre>&lt;script src="/widget.js" data-tenant="demo" data-title="AutoExpert" data-color="#FF6B00" data-welcome="Cześć, w czym mogę pomóc?" defer&gt;&lt;/script&gt;</pre>
+
+  <p>Kliknij dymek w prawym dolnym rogu. Esc zamyka okno.</p>
+
+  <script src="/widget.js"
+          data-tenant="demo"
+          data-title="AutoExpert"
+          data-color="#FF6B00"
+          data-welcome="Cześć, w czym mogę pomóc?"
+          defer></script>
+</body>
+</html>
